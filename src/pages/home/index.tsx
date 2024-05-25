@@ -1,55 +1,77 @@
 import { useQuery } from '@apollo/client';
 import {
   MovieList,
-  GET_UPCOMING_MOVIES,
-  GET_NOW_PLAYING_MOVIES,
-  IUpcomingMoviesData,
-  INowPlayingMoviesData,
 } from '@entities/movies';
 import { sortMoviesByReleaseDate } from '@shared/api/tmdb';
 import ErrorMessage from '@shared/components/ErrorMessage';
 import Loading from '@shared/components/Loading';
-import { HomeSlider } from '@widgets/home-slider';
 
 import './home.css';
-
-interface IHomeVariables {
-  page: number;
-}
+import { IDiscoverData, IDiscoverVariables } from '@widgets/discover/movies/model/types';
+import { GET_DISCOVER_MOVIES } from '@widgets/discover/movies/api/queries';
+import { useState } from 'react';
 
 const HomePage = () => {
+
+  const [page, setPage] = useState(1);
+  
   const {
     loading: upcomingLoading,
     error: upcomingErrorMessage,
     data: upcomingData,
-  } = useQuery<IUpcomingMoviesData, IHomeVariables>(GET_UPCOMING_MOVIES, {
-    variables: {
-      page : 1
+  } = useQuery<IDiscoverData, IDiscoverVariables>(
+    GET_DISCOVER_MOVIES,
+    {
+      variables: {
+        input: {
+          genreId : '',
+          year: '',
+          language: '',
+          sortBy: "popularity.desc",
+          company: '',
+          provider: '',
+          page,
+        },
+      },
     },
-  });
+  );
+
 
   const {
     loading: nowPlayingLoading,
     error: nowPlayingErrorMessage,
     data: nowPlayingData,
-  } = useQuery<INowPlayingMoviesData, IHomeVariables>(GET_NOW_PLAYING_MOVIES, {
-    variables: {
-      page: 1,
+  } = useQuery<IDiscoverData, IDiscoverVariables>(
+    GET_DISCOVER_MOVIES,
+    {
+      variables: {
+        input: {
+          genreId : '',
+          year: '',
+          language: '',
+          sortBy: "popularity.desc",
+          company: '',
+          provider: '',
+          page,
+        },
+      },
     },
-  });
+  );
 
+
+  
   if (upcomingLoading || nowPlayingLoading) return <Loading />;
   if (upcomingErrorMessage) return <ErrorMessage error={upcomingErrorMessage} />;
   if (nowPlayingErrorMessage) return <ErrorMessage error={nowPlayingErrorMessage} />;
   if (!upcomingData || !nowPlayingData) return null;
 
-  const { results: upcoming } = upcomingData.upcomingMovies;
-  const { results: nowPlaying } = nowPlayingData.nowPlayingMovies;
+  const { results: upcoming } = upcomingData.discoverMovies;
+  const { results: nowPlaying } = nowPlayingData.discoverMovies;
 
   return (
     <>
-      <h2 className='page-title'>Незабаром:</h2>
-      <HomeSlider slides={sortMoviesByReleaseDate(upcoming).slice(0, 10)} />
+      <button className='m-1' >Login</button>
+      <h2 className='page-title'>List of Resources</h2>      
       <h2>Watching now:</h2>
       <MovieList movies={sortMoviesByReleaseDate(nowPlaying).slice(0, 20)} />
     </>

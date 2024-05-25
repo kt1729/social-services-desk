@@ -11,19 +11,7 @@ const Nav = () => (
       <li>
         <NavLink to='/'>
           <MdHome />
-          <span>Main</span>
-        </NavLink>
-      </li>
-      <li>
-        <NavLink to='/movies'>
-          <TbMovie />
-          <span>Movies</span>
-        </NavLink>
-      </li>
-      <li>
-        <NavLink to='/series'>
-          <BiCameraMovie />
-          <span>Series</span>
+          <span>Home</span>
         </NavLink>
       </li>
       <li>
@@ -32,12 +20,12 @@ const Nav = () => (
           <span>Search</span>
         </NavLink>
       </li>
-      <li>
+      {/* <li>
         <NavLink to='/favorites'>
           <MdFavoriteBorder />
           <span>Favorites</span>
         </NavLink>
-      </li>
+      </li> */}
     </ul>
   </nav>
 );

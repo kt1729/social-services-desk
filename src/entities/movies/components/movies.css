@@ -1,6 +1,6 @@
 .movies-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   grid-gap: 10px;
 }
 
@@ -80,6 +80,25 @@
   padding: 3px;
   pointer-events: none;
   white-space: nowrap;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  max-width: 300px;
+  margin: auto;
+  text-align: center;
+}
+
+.title {
+  color: grey;
+  font-size: 18px;
+}
+.no-decoration {
+  text-decoration: none;
+}
+.movie-card {
+  min-height: 200px;
+  max-height: 200px;
 }
 
 @media (min-width: 768px) {
