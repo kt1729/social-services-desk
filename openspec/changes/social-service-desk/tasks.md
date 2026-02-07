@@ -6,8 +6,8 @@
 - [x] 1.4 Set up project directory structure: app/, features/, shared/
 - [x] 1.5 Create Firebase config file (src/shared/lib/firebase.ts) with placeholder env variables
 - [x] 1.6 Add Google Fonts import for Noto Sans SC (Chinese character support)
-- [ ] 1.7 Create GitHub repository and push initial project scaffold
-- [ ] 1.8 Set up Firebase project (Firestore, Storage, Auth, Hosting) and add config keys
+- [x] 1.7 Create GitHub repository and push initial project scaffold
+- [x] 1.8 Set up Firebase project (Firestore, Storage, Auth, Hosting) and add config keys
 
 ## 2. Shared Types & Constants
 
