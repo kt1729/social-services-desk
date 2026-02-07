@@ -1,12 +1,18 @@
 import { useState, type FormEvent } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -14,6 +20,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await login(email, password);
+      navigate('/', { replace: true });
     } catch {
       setError('Invalid email or password. Please try again.');
     } finally {
