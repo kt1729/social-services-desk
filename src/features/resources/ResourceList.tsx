@@ -1,18 +1,33 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../../app/useData';
 import ResourceCard from './ResourceCard';
 import ResourceForm from './ResourceForm';
 import type { CategoryKey } from '../../shared/types';
+import type { ViewMode } from '../../app/Layout';
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default function ResourceList() {
   const { resources, loading } = useData();
-  const { selectedCategory } = useOutletContext<{ selectedCategory: CategoryKey | null }>();
+  const { selectedCategory, viewMode } = useOutletContext<{
+    selectedCategory: CategoryKey | null;
+    viewMode: ViewMode;
+  }>();
   const [showForm, setShowForm] = useState(false);
+  const [recentCutoff] = useState(() => Date.now() - SEVEN_DAYS_MS);
 
-  const filtered = selectedCategory
-    ? resources.filter((r) => r.category === selectedCategory)
-    : resources;
+  const filtered = useMemo(() => {
+    let result = selectedCategory
+      ? resources.filter((r) => r.category === selectedCategory)
+      : resources;
+
+    if (viewMode === 'recent') {
+      result = result.filter((r) => r.updatedAt?.toMillis?.() > recentCutoff);
+    }
+
+    return result;
+  }, [resources, selectedCategory, viewMode, recentCutoff]);
 
   if (loading) {
     return (

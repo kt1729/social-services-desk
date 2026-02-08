@@ -1,20 +1,29 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { useData } from '../../app/useData';
-import { getTranslatedText } from '../../shared/lib/translationUtils';
-import CategoryBadge from '../../shared/components/CategoryBadge';
-import { Link } from 'react-router-dom';
-import type { ServiceDocument } from '../../shared/types';
+import { CATEGORIES } from '../../shared/lib/categories';
+import DocumentCard from './DocumentCard';
+import DocumentForm from './DocumentForm';
+import type { ViewMode } from '../../app/Layout';
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default function DocumentList() {
   const { documents, loading } = useData();
+  const { viewMode } = useOutletContext<{ viewMode: ViewMode }>();
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [recentCutoff] = useState(() => Date.now() - SEVEN_DAYS_MS);
+  const [showForm, setShowForm] = useState(false);
 
-  const filtered = documents.filter((d) => {
-    if (typeFilter !== 'all' && d.type !== typeFilter) return false;
-    if (categoryFilter !== 'all' && d.category !== categoryFilter) return false;
-    return true;
-  });
+  const filtered = useMemo(() => {
+    return documents.filter((d) => {
+      if (typeFilter !== 'all' && d.type !== typeFilter) return false;
+      if (categoryFilter !== 'all' && d.category !== categoryFilter) return false;
+      if (viewMode === 'recent' && !(d.updatedAt?.toMillis?.() > recentCutoff)) return false;
+      return true;
+    });
+  }, [documents, typeFilter, categoryFilter, viewMode, recentCutoff]);
 
   if (loading) {
     return (
@@ -24,31 +33,16 @@ export default function DocumentList() {
     );
   }
 
-  const typeIcon = (type: string) => {
-    switch (type) {
-      case 'pdf':
-        return '📄';
-      case 'link':
-        return '🔗';
-      case 'internal':
-        return '📝';
-      case 'image':
-        return '🖼️';
-      default:
-        return '📄';
-    }
-  };
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
-        <Link
-          to="/documents/new"
+        <button
+          onClick={() => setShowForm(true)}
           className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700"
         >
           + Add Document
-        </Link>
+        </button>
       </div>
 
       <div className="flex gap-3 mb-4">
@@ -69,20 +63,9 @@ export default function DocumentList() {
           className="px-3 py-1.5 border rounded text-sm"
         >
           <option value="all">All Categories</option>
-          {[
-            'housing',
-            'food',
-            'medical',
-            'mental_health',
-            'legal',
-            'employment',
-            'financial',
-            'transportation',
-            'clothing',
-            'other',
-          ].map((c) => (
-            <option key={c} value={c}>
-              {c}
+          {CATEGORIES.map((c) => (
+            <option key={c.key} value={c.key}>
+              {c.icon} {c.labels.en}
             </option>
           ))}
         </select>
@@ -91,36 +74,17 @@ export default function DocumentList() {
       {filtered.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <p className="text-lg mb-2">No documents found</p>
+          <p className="text-sm">Add your first document to get started.</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((d: ServiceDocument) => (
-            <Link
-              key={d.id}
-              to={`/documents/${d.id}`}
-              className="block border rounded-lg p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold">
-                    {typeIcon(d.type)} {getTranslatedText(d.title, 'en')}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {getTranslatedText(d.description, 'en')}
-                  </p>
-                </div>
-                <CategoryBadge category={d.category} />
-              </div>
-              <div className="flex gap-2 mt-2 text-xs text-gray-400">
-                {d.languages?.en?.available && <span>🇺🇸</span>}
-                {d.languages?.es?.available && <span>🇪🇸</span>}
-                {d.languages?.zh?.available && <span>🇨🇳</span>}
-                {d.languages?.ht?.available && <span>🇭🇹</span>}
-              </div>
-            </Link>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((doc) => (
+            <DocumentCard key={doc.id} document={doc} />
           ))}
         </div>
       )}
+
+      <DocumentForm open={showForm} onClose={() => setShowForm(false)} />
     </div>
   );
 }

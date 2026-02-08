@@ -1,12 +1,31 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
+const DEBOUNCE_MS = 300;
 
 export default function SearchBar() {
-  const [query, setQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') ?? '');
   const navigate = useNavigate();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    if (query.trim()) {
+      timerRef.current = setTimeout(() => {
+        navigate(`/search?q=${encodeURIComponent(query.trim())}`, { replace: true });
+      }, DEBOUNCE_MS);
+    }
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [query, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (timerRef.current) clearTimeout(timerRef.current);
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
     }
