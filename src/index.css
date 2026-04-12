@@ -1,0 +1,35 @@
+@import 'tailwindcss';
+
+@media print {
+  /* Hide all UI chrome when printing */
+  header,
+  aside,
+  footer,
+  nav,
+  .print-hidden {
+    display: none !important;
+  }
+
+  /* Show print-only content */
+  .print-block {
+    display: block !important;
+  }
+
+  /* Remove borders in print for QR card */
+  .print-border-none {
+    border: none !important;
+  }
+
+  /* Reset layout for print */
+  body {
+    background: white;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ensure print cards use full page width */
+  main {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+}

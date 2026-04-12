@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: check if user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Helper: check if user is admin
+    function isAdmin() {
+      return isAuth() &&
+        get(/databases/$(database)/documents/volunteers/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Volunteers collection: read if auth, only admins can write
+    match /volunteers/{volunteerId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // Resources: public read, auth create/update, admin-only delete
+    match /resources/{resourceId} {
+      allow read: if true;
+      allow create, update: if isAuth();
+      allow delete: if isAdmin();
+    }
+
+    // Documents: public read, auth create/update, admin-only delete
+    match /documents/{documentId} {
+      allow read: if true;
+      allow create, update: if isAuth();
+      allow delete: if isAdmin();
+    }
+
+    // Guests: auth read/write
+    match /guests/{guestId} {
+      allow read, write: if isAuth();
+    }
+
+    // Feedback: auth read/create, no update/delete
+    match /feedback/{feedbackId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+    }
+
+    // Notes: auth read/create
+    match /notes/{noteId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+    }
+  }
+}
