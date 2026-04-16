@@ -11,33 +11,35 @@ declare global {
 }
 
 function Scripts() {
-  return (
-    <>
-      <script
-        async
-        src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-      />
-      <script
-        dangerouslySetInnerHTML={{
-          // Static content only — measurementId comes from a build-time env var,
-          // never from user input, so there is no XSS risk here.
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${measurementId}', { send_page_view: false });
-          `,
-        }}
-      />
-    </>
-  );
+  useEffect(() => {
+    // React sets innerHTML on script nodes which browsers do not execute.
+    // Imperatively creating and appending script elements is required for execution.
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function gtag() {
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer.push(arguments);
+    };
+    window.gtag('js', new Date());
+    window.gtag('config', measurementId, { send_page_view: false });
+
+    const script = document.createElement('script');
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    script.async = true;
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  return null;
 }
 
 function PageViewTracker() {
   const location = useLocation();
 
   useEffect(() => {
-    if (typeof window.gtag !== 'function') return;
+    // gtag is defined synchronously in Scripts' useEffect, so it's always available here.
     window.gtag('event', 'page_view', {
       page_path: location.pathname + location.search,
       page_location: window.location.href,
