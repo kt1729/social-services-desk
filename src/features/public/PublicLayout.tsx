@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
+import GoogleAnalytics from './GoogleAnalytics';
 import { QRCodeSVG } from 'qrcode.react';
 import { SUPPORTED_LANGUAGES } from '../../shared/lib/languages';
 import type { LanguageCode } from '../../shared/types';
@@ -13,6 +14,7 @@ export default function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <GoogleAnalytics />
       <header className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="max-w-4xl mx-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link to="/public" className="flex items-center gap-3">
