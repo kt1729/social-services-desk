@@ -13,6 +13,7 @@ import DocumentDetail from '../features/documents/DocumentDetail';
 import NotesPage from '../features/notes/NotesPage';
 import TranslationDashboard from '../features/translation/TranslationDashboard';
 import TagsPage from '../features/tags/TagsPage';
+import VolunteersPage from '../features/volunteers/VolunteersPage';
 import SearchResults from '../features/search/SearchResults';
 import { PublicDataProvider } from '../features/public/PublicDataProvider';
 import PublicLayout from '../features/public/PublicLayout';
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/translation" element={<TranslationDashboard />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/tags" element={<TagsPage />} />
+            <Route path="/volunteers" element={<VolunteersPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
