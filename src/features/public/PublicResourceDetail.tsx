@@ -63,6 +63,13 @@ export default function PublicResourceDetail() {
             </a>
           </p>
         )}
+        {resource.email && (
+          <p>
+            <a href={`mailto:${resource.email}`} className="text-blue-600 hover:underline">
+              {resource.email}
+            </a>
+          </p>
+        )}
         {resource.website && (
           <p>
             <a

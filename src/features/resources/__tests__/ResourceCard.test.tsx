@@ -85,7 +85,28 @@ describe('ResourceCard', () => {
 
   it('links to the resource detail page', () => {
     renderCard(makeResource({ id: 'abc123' }));
-    const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/resources/abc123');
+    const links = screen.getAllByRole('link');
+    const cardLink = links.find((l) => l.getAttribute('href') === '/resources/abc123');
+    expect(cardLink).toBeInTheDocument();
+  });
+
+  it('renders email address as text when present', () => {
+    renderCard(makeResource({ email: 'help@shelter.org' }));
+    expect(screen.getByText(/help@shelter\.org/)).toBeInTheDocument();
+  });
+
+  it('shows email icon when email is present', () => {
+    renderCard(makeResource({ email: 'help@shelter.org' }));
+    expect(screen.getByText(/✉️/)).toBeInTheDocument();
+  });
+
+  it('does not render email element when email is absent', () => {
+    renderCard(makeResource({ email: undefined }));
+    expect(screen.queryByText(/✉️/)).not.toBeInTheDocument();
+  });
+
+  it('does not render email element when email is empty string', () => {
+    renderCard(makeResource({ email: '' }));
+    expect(screen.queryByText(/✉️/)).not.toBeInTheDocument();
   });
 });

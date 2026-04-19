@@ -129,6 +129,14 @@ export default function ResourceDetail() {
         <div className="bg-gray-50 rounded-lg p-4 mb-6 text-sm space-y-1">
           {resource.address && <p>📍 {resource.address}</p>}
           {resource.phone && <p>📞 {resource.phone}</p>}
+          {resource.email && (
+            <p>
+              ✉️{' '}
+              <a href={`mailto:${resource.email}`} className="text-blue-600 hover:underline">
+                {resource.email}
+              </a>
+            </p>
+          )}
           {resource.website && (
             <p>
               🌐{' '}

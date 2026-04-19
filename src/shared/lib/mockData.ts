@@ -19,6 +19,7 @@ export const mockResources: Resource[] = [
     category: 'food',
     address: '123 Main St',
     phone: '555-0100',
+    email: 'info@foodpantry.org',
     website: 'https://example.org',
     operatingHours: [
       { day: 'mon', open: '09:00', close: '17:00' },

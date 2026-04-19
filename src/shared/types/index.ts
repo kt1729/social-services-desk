@@ -67,6 +67,7 @@ export interface Resource {
   category: CategoryKey;
   address: string;
   phone: string;
+  email?: string;
   website: string;
   operatingHours: OperatingHours;
   tags: string[];

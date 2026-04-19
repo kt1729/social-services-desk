@@ -30,6 +30,7 @@ export default function PrintResourceCard({ resource, lang }: PrintResourceCardP
         <div className="text-sm space-y-1 mb-4">
           {resource.address && <p>📍 {resource.address}</p>}
           {resource.phone && <p>📞 {resource.phone}</p>}
+          {resource.email && <p>✉️ {resource.email}</p>}
           {resource.website && <p>🌐 {resource.website}</p>}
           {formatOperatingHours(resource.operatingHours ?? []).map((line) => (
             <p key={line}>🕐 {line}</p>

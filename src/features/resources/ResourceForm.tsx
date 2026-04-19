@@ -37,6 +37,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
   const [category, setCategory] = useState<CategoryKey>(resource?.category ?? 'other');
   const [address, setAddress] = useState(resource?.address ?? '');
   const [phone, setPhone] = useState(resource?.phone ?? '');
+  const [email, setEmail] = useState(resource?.email ?? '');
   const [website, setWebsite] = useState(resource?.website ?? '');
   const [operatingHours, setOperatingHours] = useState<OperatingHours>(
     resource?.operatingHours ?? createEmptySchedule(),
@@ -60,6 +61,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           category,
           address,
           phone,
+          email,
           website,
           operatingHours,
           tagIds,
@@ -73,6 +75,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           category,
           address,
           phone,
+          email,
           website,
           operatingHours,
           tagIds,
@@ -171,13 +174,25 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
-              <input
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  placeholder="contact@example.org"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                <input
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                />
+              </div>
             </div>
 
             <OperatingHoursInput value={operatingHours} onChange={setOperatingHours} />

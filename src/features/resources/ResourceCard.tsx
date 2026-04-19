@@ -29,6 +29,7 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
       <div className="text-sm text-gray-500 space-y-1 mb-3">
         {resource.address && <p>📍 {resource.address}</p>}
         {resource.phone && <p>📞 {resource.phone}</p>}
+        {resource.email && <p>✉️ {resource.email}</p>}
         {formatOperatingHours(resource.operatingHours ?? []).map((line) => (
           <p key={line}>🕐 {line}</p>
         ))}
