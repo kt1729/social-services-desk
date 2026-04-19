@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { QRCodeSVG } from 'qrcode.react';
 import { getTranslatedText } from '../../shared/lib/translationUtils';
 import { getCategoryLabel } from '../../shared/lib/categories';
@@ -13,6 +14,7 @@ export default function PrintDocumentCard({ document: doc, lang }: PrintDocument
   const headers = PRINT_HEADERS[lang];
   const today = new Date().toLocaleDateString();
   const isLink = doc.type === 'link' && doc.source?.url;
+  const descriptionHtml = DOMPurify.sanitize(getTranslatedText(doc.description, lang));
 
   return (
     <div
@@ -28,8 +30,11 @@ export default function PrintDocumentCard({ document: doc, lang }: PrintDocument
         <h2 className="text-base font-bold mb-1">{getTranslatedText(doc.title, lang)}</h2>
         <p className="text-sm mb-3">{getCategoryLabel(doc.category, lang)}</p>
 
-        {getTranslatedText(doc.description, lang) && (
-          <p className="text-sm mb-4">{getTranslatedText(doc.description, lang)}</p>
+        {descriptionHtml && (
+          <div
+            className="text-sm mb-4 prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+          />
         )}
 
         {isLink && (

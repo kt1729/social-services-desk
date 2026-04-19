@@ -1,20 +1,50 @@
 import { useState, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { collection, getDocs, query, updateDoc, doc, where, deleteField } from 'firebase/firestore';
+import { db } from '../../shared/lib/firebase';
 import { useData } from '../../app/useData';
+import { useAuth } from '../auth/useAuth';
 import { CATEGORIES } from '../../shared/lib/categories';
 import DocumentCard from './DocumentCard';
 import DocumentForm from './DocumentForm';
+import type { ServiceDocument } from '../../shared/types';
 import type { ViewMode } from '../../app/Layout';
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default function DocumentList() {
   const { documents, loading } = useData();
+  const { isAdmin } = useAuth();
   const { viewMode } = useOutletContext<{ viewMode: ViewMode }>();
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [recentCutoff] = useState(() => Date.now() - SEVEN_DAYS_MS);
   const [showForm, setShowForm] = useState(false);
+  const [showDeleted, setShowDeleted] = useState(false);
+  const [deletedDocuments, setDeletedDocuments] = useState<ServiceDocument[]>([]);
+  const [loadingDeleted, setLoadingDeleted] = useState(false);
+
+  async function handleToggleDeleted() {
+    if (!showDeleted && deletedDocuments.length === 0) {
+      setLoadingDeleted(true);
+      const snap = await getDocs(
+        query(collection(db, 'documents'), where('active', '==', false)),
+      );
+      setDeletedDocuments(
+        snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<ServiceDocument, 'id'>) })),
+      );
+      setLoadingDeleted(false);
+    }
+    setShowDeleted((prev) => !prev);
+  }
+
+  async function handleRestore(id: string) {
+    await updateDoc(doc(db, 'documents', id), {
+      active: true,
+      deletedAt: deleteField(),
+    });
+    setDeletedDocuments((prev) => prev.filter((d) => d.id !== id));
+  }
 
   const filtered = useMemo(() => {
     return documents.filter((d) => {
@@ -37,12 +67,22 @@ export default function DocumentList() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700"
-        >
-          + Add Document
-        </button>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <button
+              onClick={handleToggleDeleted}
+              className="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              {showDeleted ? 'Hide deleted' : 'Show deleted'}
+            </button>
+          )}
+          <button
+            onClick={() => setShowForm(true)}
+            className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          >
+            + Add Document
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-3 mb-4">
@@ -70,6 +110,35 @@ export default function DocumentList() {
           ))}
         </select>
       </div>
+
+      {showDeleted && (
+        <div className="mb-6">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            Deleted Documents
+          </h2>
+          {loadingDeleted ? (
+            <p className="text-sm text-gray-400">Loading…</p>
+          ) : deletedDocuments.length === 0 ? (
+            <p className="text-sm text-gray-400">No deleted documents.</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {deletedDocuments.map((document) => (
+                <div key={document.id} className="opacity-50 relative">
+                  <DocumentCard document={document} />
+                  <div className="absolute inset-0 flex items-end justify-center pb-3 bg-transparent">
+                    <button
+                      onClick={() => handleRestore(document.id)}
+                      className="px-3 py-1.5 text-xs text-white bg-green-600 rounded-md hover:bg-green-700 shadow"
+                    >
+                      Restore
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {filtered.length === 0 ? (
         <div className="text-center py-12 text-gray-500">

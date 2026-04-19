@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { collection, onSnapshot, type Unsubscribe } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, type Unsubscribe } from 'firebase/firestore';
 import { db } from '../../shared/lib/firebase';
 import type { Resource, ServiceDocument, Tag } from '../../shared/types';
 import { PublicDataContext } from './PublicDataContext';
@@ -48,7 +48,7 @@ export function PublicDataProvider({ children }: { children: ReactNode }) {
 
     unsubs.push(
       onSnapshot(
-        collection(db, 'resources'),
+        query(collection(db, 'resources'), where('active', '!=', false)),
         (snap) => {
           setResources(mapDocs<Resource>(snap));
           checkLoaded();
@@ -59,7 +59,7 @@ export function PublicDataProvider({ children }: { children: ReactNode }) {
 
     unsubs.push(
       onSnapshot(
-        collection(db, 'documents'),
+        query(collection(db, 'documents'), where('active', '!=', false)),
         (snap) => {
           setDocuments(mapDocs<ServiceDocument>(snap));
           checkLoaded();

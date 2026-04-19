@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../../shared/lib/firebase';
-import { deleteFile, getFileUrl } from '../../shared/lib/storageService';
+import { getFileUrl } from '../../shared/lib/storageService';
 import { useData } from '../../app/useData';
 import { useAuth } from '../auth/useAuth';
 import { getTranslatedText } from '../../shared/lib/translationUtils';
@@ -56,18 +56,10 @@ export default function DocumentDetail() {
   );
 
   const handleDelete = async () => {
-    // Delete storage files
-    for (const lang of SUPPORTED_LANGUAGES) {
-      const langInfo = document.languages?.[lang.code];
-      if (langInfo?.storagePath) {
-        try {
-          await deleteFile(langInfo.storagePath);
-        } catch {
-          // File may not exist, continue
-        }
-      }
-    }
-    await deleteDoc(doc(db, 'documents', document.id));
+    await updateDoc(doc(db, 'documents', document.id), {
+      active: false,
+      deletedAt: Timestamp.now(),
+    });
     navigate('/documents');
   };
 
