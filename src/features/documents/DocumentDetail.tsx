@@ -8,6 +8,7 @@ import { useAuth } from '../auth/useAuth';
 import { getTranslatedText } from '../../shared/lib/translationUtils';
 import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from '../../shared/lib/languages';
 import CategoryBadge from '../../shared/components/CategoryBadge';
+import RichTextDisplay from '../../shared/components/RichTextDisplay';
 import ConfirmDialog from '../../shared/components/ConfirmDialog';
 import LanguageSelector from '../../shared/components/LanguageSelector';
 import PrintDocumentCard from '../print/PrintDocumentCard';
@@ -119,7 +120,7 @@ export default function DocumentDetail() {
         </div>
 
         {getTranslatedText(document.description, 'en') && (
-          <p className="text-gray-700 mb-6">{getTranslatedText(document.description, 'en')}</p>
+          <RichTextDisplay html={getTranslatedText(document.description, 'en')} className="text-gray-700 mb-6" />
         )}
 
         {document.tags?.length > 0 && (

@@ -4,6 +4,10 @@ import { getTranslatedText } from '../../shared/lib/translationUtils';
 import CategoryBadge from '../../shared/components/CategoryBadge';
 import type { ServiceDocument } from '../../shared/types';
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 interface DocumentCardProps {
   document: ServiceDocument;
 }
@@ -43,7 +47,7 @@ export default function DocumentCard({ document: doc }: DocumentCardProps) {
 
       {getTranslatedText(doc.description, 'en') && (
         <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-          {getTranslatedText(doc.description, 'en')}
+          {stripHtml(getTranslatedText(doc.description, 'en'))}
         </p>
       )}
 

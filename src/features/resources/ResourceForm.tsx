@@ -4,6 +4,7 @@ import { db } from '../../shared/lib/firebase';
 import { useAuth } from '../auth/useAuth';
 import { useData } from '../../app/useData';
 import Modal from '../../shared/components/Modal';
+import RichTextEditor from '../../shared/components/RichTextEditor';
 import TagMultiselect from '../../shared/components/TagMultiselect';
 import OperatingHoursInput from '../../shared/components/OperatingHoursInput';
 import { createEmptySchedule } from '../../shared/lib/operatingHours';
@@ -142,11 +143,9 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Description ({activeLang.toUpperCase()})
           </label>
-          <textarea
+          <RichTextEditor
             value={description[activeLang] ?? ''}
-            onChange={(e) => setDescription({ ...description, [activeLang]: e.target.value })}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            onChange={(html) => setDescription({ ...description, [activeLang]: html })}
             placeholder={`Description in ${activeLang.toUpperCase()}`}
           />
         </div>

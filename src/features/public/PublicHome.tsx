@@ -7,6 +7,10 @@ import { formatOperatingHours } from '../../shared/lib/operatingHours';
 import CategoryBadge from '../../shared/components/CategoryBadge';
 import type { LanguageCode, CategoryKey } from '../../shared/types';
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function typeIcon(type: string): string {
   switch (type) {
     case 'pdf':
@@ -47,7 +51,7 @@ export default function PublicHome() {
       return false;
     if (!searchTerm) return true;
     const name = getTranslatedText(r.name, lang);
-    const description = getTranslatedText(r.description, lang);
+    const description = stripHtml(getTranslatedText(r.description, lang));
     const haystack = [name, description, r.address, r.phone, r.website]
       .filter(Boolean)
       .join(' ')
@@ -64,7 +68,7 @@ export default function PublicHome() {
       return false;
     if (!searchTerm) return true;
     const title = getTranslatedText(d.title, lang);
-    const description = getTranslatedText(d.description, lang);
+    const description = stripHtml(getTranslatedText(d.description, lang));
     const haystack = [title, description].filter(Boolean).join(' ').toLowerCase();
     return haystack.includes(searchTerm);
   });
@@ -163,7 +167,7 @@ export default function PublicHome() {
                 </div>
                 {getTranslatedText(resource.description, lang) && (
                   <p className="text-sm text-gray-600 line-clamp-2">
-                    {getTranslatedText(resource.description, lang)}
+                    {stripHtml(getTranslatedText(resource.description, lang))}
                   </p>
                 )}
                 {(resource.tagIds ?? []).length > 0 && (
@@ -214,7 +218,7 @@ export default function PublicHome() {
                 </div>
                 {getTranslatedText(doc.description, lang) && (
                   <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                    {getTranslatedText(doc.description, lang)}
+                    {stripHtml(getTranslatedText(doc.description, lang))}
                   </p>
                 )}
                 <div className="flex items-center gap-3 text-xs text-gray-400">

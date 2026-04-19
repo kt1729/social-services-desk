@@ -3,6 +3,7 @@ import { usePublicData } from './usePublicData';
 import { getTranslatedText } from '../../shared/lib/translationUtils';
 import { formatOperatingHours } from '../../shared/lib/operatingHours';
 import CategoryBadge from '../../shared/components/CategoryBadge';
+import RichTextDisplay from '../../shared/components/RichTextDisplay';
 import type { LanguageCode } from '../../shared/types';
 
 export default function PublicResourceDetail() {
@@ -80,7 +81,7 @@ export default function PublicResourceDetail() {
       </div>
 
       {getTranslatedText(resource.description, lang) && (
-        <p className="text-gray-700 mb-6">{getTranslatedText(resource.description, lang)}</p>
+        <RichTextDisplay html={getTranslatedText(resource.description, lang)} className="text-gray-700 mb-6" />
       )}
 
       {linkedDocs.length > 0 && (

@@ -8,15 +8,15 @@ import type { Tag, Resource, ServiceDocument } from '../../../shared/types';
 const mockAddDoc = vi.fn().mockResolvedValue({ id: 'new-tag-id' });
 const mockUpdateDoc = vi.fn().mockResolvedValue(undefined);
 const mockDeleteDoc = vi.fn().mockResolvedValue(undefined);
-const mockDoc = vi.fn(() => ({ _type: 'doc-ref' }));
-const mockCollection = vi.fn(() => ({ _type: 'collection-ref' }));
+const mockDoc = vi.fn((..._args: unknown[]) => ({ _type: 'doc-ref' }));
+const mockCollection = vi.fn((..._args: unknown[]) => ({ _type: 'collection-ref' }));
 
 vi.mock('firebase/firestore', () => ({
-  addDoc: (...args: unknown[]) => mockAddDoc(...args),
-  updateDoc: (...args: unknown[]) => mockUpdateDoc(...args),
-  deleteDoc: (...args: unknown[]) => mockDeleteDoc(...args),
-  doc: (...args: unknown[]) => mockDoc(...args),
-  collection: (...args: unknown[]) => mockCollection(...args),
+  addDoc: (a: unknown, b: unknown) => mockAddDoc(a, b),
+  updateDoc: (a: unknown, b: unknown) => mockUpdateDoc(a, b),
+  deleteDoc: (a: unknown) => mockDeleteDoc(a),
+  doc: (a: unknown, b: unknown, c: unknown) => mockDoc(a, b, c),
+  collection: (a: unknown, b: unknown) => mockCollection(a, b),
   Timestamp: { now: vi.fn(() => ({ seconds: 0, nanoseconds: 0 })) },
 }));
 

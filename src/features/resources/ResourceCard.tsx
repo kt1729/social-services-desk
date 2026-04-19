@@ -4,13 +4,17 @@ import CategoryBadge from '../../shared/components/CategoryBadge';
 import { getTranslatedText } from '../../shared/lib/translationUtils';
 import { formatOperatingHours } from '../../shared/lib/operatingHours';
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 interface ResourceCardProps {
   resource: Resource;
 }
 
 export default function ResourceCard({ resource }: ResourceCardProps) {
   const name = getTranslatedText(resource.name, 'en');
-  const description = getTranslatedText(resource.description, 'en');
+  const description = stripHtml(getTranslatedText(resource.description, 'en'));
 
   return (
     <Link

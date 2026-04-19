@@ -13,6 +13,7 @@ import { uploadFile } from '../../shared/lib/storageService';
 import { useAuth } from '../auth/useAuth';
 import { useData } from '../../app/useData';
 import Modal from '../../shared/components/Modal';
+import RichTextEditor from '../../shared/components/RichTextEditor';
 import TranslationTabs from '../../shared/components/TranslationTabs';
 import TagMultiselect from '../../shared/components/TagMultiselect';
 import FileUpload from '../../shared/components/FileUpload';
@@ -243,11 +244,9 @@ export default function DocumentForm({ open, onClose, document: existingDoc }: D
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Description ({activeLang.toUpperCase()})
           </label>
-          <textarea
+          <RichTextEditor
             value={description[activeLang] ?? ''}
-            onChange={(e) => setDescription({ ...description, [activeLang]: e.target.value })}
-            rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            onChange={(html) => setDescription({ ...description, [activeLang]: html })}
             placeholder={`Description in ${activeLang.toUpperCase()}`}
           />
         </div>
