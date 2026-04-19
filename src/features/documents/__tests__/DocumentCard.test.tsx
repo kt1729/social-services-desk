@@ -23,6 +23,7 @@ function makeDoc(overrides: Partial<ServiceDocument> = {}): ServiceDocument {
     source: { url: null, storagePath: null, internalContent: null },
     category: 'food',
     tags: [],
+    tagIds: [],
     linkedResources: [],
     languages: {},
     translationStatus: {},
@@ -51,6 +52,18 @@ describe('DocumentCard', () => {
   it('renders document description', () => {
     renderCard(makeDoc());
     expect(screen.getByText('A test document description')).toBeInTheDocument();
+  });
+
+  it('strips HTML tags from description excerpt', () => {
+    renderCard(makeDoc({ description: { en: '<p><strong>Important</strong> guide for access.</p>' } }));
+    expect(screen.queryByText(/<strong>/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Important/)).toBeInTheDocument();
+  });
+
+  it('does not render raw HTML list tags in description', () => {
+    renderCard(makeDoc({ description: { en: '<ul><li>Step one</li></ul>' } }));
+    expect(screen.queryByText(/<ul>/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Step one/)).toBeInTheDocument();
   });
 
   it('renders type icon for PDF', () => {

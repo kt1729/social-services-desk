@@ -1,9 +1,10 @@
 import { createContext } from 'react';
-import type { Resource, ServiceDocument } from '../../shared/types';
+import type { Resource, ServiceDocument, Tag } from '../../shared/types';
 
 export interface PublicDataContextValue {
   resources: Resource[];
   documents: ServiceDocument[];
+  tags: Tag[];
   loading: boolean;
   error: string | null;
 }

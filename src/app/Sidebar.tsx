@@ -138,6 +138,17 @@ export default function Sidebar({
           </>
         )}
 
+        <Link
+          to="/tags"
+          className={`block px-3 py-2 rounded text-sm ${
+            location.pathname === '/tags'
+              ? 'bg-blue-50 text-blue-700 font-medium'
+              : 'text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          Tags
+        </Link>
+
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Translation
         </h3>

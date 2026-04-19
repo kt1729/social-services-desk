@@ -13,8 +13,9 @@ import { uploadFile } from '../../shared/lib/storageService';
 import { useAuth } from '../auth/useAuth';
 import { useData } from '../../app/useData';
 import Modal from '../../shared/components/Modal';
+import RichTextEditor from '../../shared/components/RichTextEditor';
 import TranslationTabs from '../../shared/components/TranslationTabs';
-import TagInput from '../../shared/components/TagInput';
+import TagMultiselect from '../../shared/components/TagMultiselect';
 import FileUpload from '../../shared/components/FileUpload';
 import { CATEGORIES } from '../../shared/lib/categories';
 import { SUPPORTED_LANGUAGES } from '../../shared/lib/languages';
@@ -38,7 +39,7 @@ interface DocumentFormProps {
 
 export default function DocumentForm({ open, onClose, document: existingDoc }: DocumentFormProps) {
   const { user } = useAuth();
-  const { resources } = useData();
+  const { resources, tags } = useData();
   const isEdit = !!existingDoc;
 
   const [title, setTitle] = useState<TranslatedField>(existingDoc?.title ?? { en: '' });
@@ -47,7 +48,7 @@ export default function DocumentForm({ open, onClose, document: existingDoc }: D
   );
   const [docType, setDocType] = useState<DocumentType>(existingDoc?.type ?? 'link');
   const [category, setCategory] = useState<CategoryKey>(existingDoc?.category ?? 'other');
-  const [tags, setTags] = useState<string[]>(existingDoc?.tags ?? []);
+  const [tagIds, setTagIds] = useState<string[]>(existingDoc?.tagIds ?? []);
   const [url, setUrl] = useState(existingDoc?.source?.url ?? '');
   const [internalContent, setInternalContent] = useState<TranslatedField>(
     existingDoc?.source?.internalContent ?? { en: '' },
@@ -117,7 +118,7 @@ export default function DocumentForm({ open, onClose, document: existingDoc }: D
           type: docType,
           source,
           category,
-          tags,
+          tagIds,
           languages,
           translationStatus,
           linkedResources: linkedResourceIds,
@@ -146,7 +147,7 @@ export default function DocumentForm({ open, onClose, document: existingDoc }: D
           type: docType,
           source,
           category,
-          tags,
+          tagIds,
           linkedResources: linkedResourceIds,
           languages,
           translationStatus,
@@ -243,11 +244,9 @@ export default function DocumentForm({ open, onClose, document: existingDoc }: D
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Description ({activeLang.toUpperCase()})
           </label>
-          <textarea
+          <RichTextEditor
             value={description[activeLang] ?? ''}
-            onChange={(e) => setDescription({ ...description, [activeLang]: e.target.value })}
-            rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            onChange={(html) => setDescription({ ...description, [activeLang]: html })}
             placeholder={`Description in ${activeLang.toUpperCase()}`}
           />
         </div>
@@ -308,7 +307,7 @@ export default function DocumentForm({ open, onClose, document: existingDoc }: D
           <>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-              <TagInput value={tags} onChange={setTags} />
+              <TagMultiselect value={tagIds} onChange={setTagIds} tags={tags} />
             </div>
 
             <div>

@@ -15,6 +15,7 @@ import { useAuth } from '../auth/useAuth';
 import { getTranslatedText } from '../../shared/lib/translationUtils';
 import { formatOperatingHours } from '../../shared/lib/operatingHours';
 import CategoryBadge from '../../shared/components/CategoryBadge';
+import RichTextDisplay from '../../shared/components/RichTextDisplay';
 import ConfirmDialog from '../../shared/components/ConfirmDialog';
 import LanguageSelector from '../../shared/components/LanguageSelector';
 import ResourceForm from './ResourceForm';
@@ -128,6 +129,14 @@ export default function ResourceDetail() {
         <div className="bg-gray-50 rounded-lg p-4 mb-6 text-sm space-y-1">
           {resource.address && <p>📍 {resource.address}</p>}
           {resource.phone && <p>📞 {resource.phone}</p>}
+          {resource.email && (
+            <p>
+              ✉️{' '}
+              <a href={`mailto:${resource.email}`} className="text-blue-600 hover:underline">
+                {resource.email}
+              </a>
+            </p>
+          )}
           {resource.website && (
             <p>
               🌐{' '}
@@ -146,7 +155,7 @@ export default function ResourceDetail() {
           ))}
         </div>
 
-        <p className="text-gray-700 mb-6">{getTranslatedText(resource.description, 'en')}</p>
+        <RichTextDisplay html={getTranslatedText(resource.description, 'en')} className="text-gray-700 mb-6" />
 
         {resource.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-6">

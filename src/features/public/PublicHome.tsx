@@ -7,6 +7,10 @@ import { formatOperatingHours } from '../../shared/lib/operatingHours';
 import CategoryBadge from '../../shared/components/CategoryBadge';
 import type { LanguageCode, CategoryKey } from '../../shared/types';
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function typeIcon(type: string): string {
   switch (type) {
     case 'pdf':
@@ -24,8 +28,9 @@ function typeIcon(type: string): string {
 
 export default function PublicHome() {
   const { lang, search } = useOutletContext<{ lang: LanguageCode; search: string }>();
-  const { resources, documents, loading, error } = usePublicData();
+  const { resources, documents, tags, loading, error } = usePublicData();
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
   if (loading) {
     return <div className="text-center py-12 text-gray-500">Loading...</div>;
@@ -39,9 +44,14 @@ export default function PublicHome() {
 
   const filteredResources = resources.filter((r) => {
     if (selectedCategory && r.category !== selectedCategory) return false;
+    if (
+      selectedTagIds.length > 0 &&
+      !selectedTagIds.some((tid) => (r.tagIds ?? []).includes(tid))
+    )
+      return false;
     if (!searchTerm) return true;
     const name = getTranslatedText(r.name, lang);
-    const description = getTranslatedText(r.description, lang);
+    const description = stripHtml(getTranslatedText(r.description, lang));
     const haystack = [name, description, r.address, r.phone, r.website]
       .filter(Boolean)
       .join(' ')
@@ -51,17 +61,28 @@ export default function PublicHome() {
 
   const filteredDocuments = documents.filter((d) => {
     if (selectedCategory && d.category !== selectedCategory) return false;
+    if (
+      selectedTagIds.length > 0 &&
+      !selectedTagIds.some((tid) => (d.tagIds ?? []).includes(tid))
+    )
+      return false;
     if (!searchTerm) return true;
     const title = getTranslatedText(d.title, lang);
-    const description = getTranslatedText(d.description, lang);
+    const description = stripHtml(getTranslatedText(d.description, lang));
     const haystack = [title, description].filter(Boolean).join(' ').toLowerCase();
     return haystack.includes(searchTerm);
   });
 
+  function toggleTag(id: string) {
+    setSelectedTagIds((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+  }
+
+  const sortedTags = [...tags].sort((a, b) => a.label.localeCompare(b.label));
+
   return (
     <div>
       {/* Category Filter Tabs */}
-      <div className="flex flex-wrap gap-1.5 mb-6">
+      <div className="flex flex-wrap gap-1.5 mb-3">
         <button
           onClick={() => setSelectedCategory(null)}
           className={`px-3 py-1.5 rounded-full text-sm ${
@@ -92,6 +113,25 @@ export default function PublicHome() {
           </button>
         ))}
       </div>
+
+      {/* Tag Filter Pills */}
+      {sortedTags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-6">
+          {sortedTags.map((tag) => (
+            <button
+              key={tag.id}
+              onClick={() => toggleTag(tag.id)}
+              className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+                selectedTagIds.includes(tag.id)
+                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              {tag.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Resources Section */}
       {filteredResources.length > 0 && (
@@ -127,8 +167,23 @@ export default function PublicHome() {
                 </div>
                 {getTranslatedText(resource.description, lang) && (
                   <p className="text-sm text-gray-600 line-clamp-2">
-                    {getTranslatedText(resource.description, lang)}
+                    {stripHtml(getTranslatedText(resource.description, lang))}
                   </p>
+                )}
+                {(resource.tagIds ?? []).length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {(resource.tagIds ?? [])
+                      .map((tid) => tags.find((t) => t.id === tid))
+                      .filter((t): t is NonNullable<typeof t> => t !== undefined)
+                      .map((t) => (
+                        <span
+                          key={t.id}
+                          className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded text-xs"
+                        >
+                          {t.label}
+                        </span>
+                      ))}
+                  </div>
                 )}
               </Link>
             ))}
@@ -163,7 +218,7 @@ export default function PublicHome() {
                 </div>
                 {getTranslatedText(doc.description, lang) && (
                   <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                    {getTranslatedText(doc.description, lang)}
+                    {stripHtml(getTranslatedText(doc.description, lang))}
                   </p>
                 )}
                 <div className="flex items-center gap-3 text-xs text-gray-400">
@@ -172,6 +227,21 @@ export default function PublicHome() {
                   {doc.languages?.zh?.available && <span>ZH</span>}
                   {doc.languages?.ht?.available && <span>HT</span>}
                 </div>
+                {(doc.tagIds ?? []).length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {(doc.tagIds ?? [])
+                      .map((tid) => tags.find((t) => t.id === tid))
+                      .filter((t): t is NonNullable<typeof t> => t !== undefined)
+                      .map((t) => (
+                        <span
+                          key={t.id}
+                          className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded text-xs"
+                        >
+                          {t.label}
+                        </span>
+                      ))}
+                  </div>
+                )}
               </Link>
             ))}
           </div>

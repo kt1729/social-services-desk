@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { collection, onSnapshot, type Unsubscribe } from 'firebase/firestore';
 import { db } from '../../shared/lib/firebase';
-import type { Resource, ServiceDocument } from '../../shared/types';
+import type { Resource, ServiceDocument, Tag } from '../../shared/types';
 import { PublicDataContext } from './PublicDataContext';
 import { isLocalMode } from '../../shared/lib/localMode';
 import { mockResources, mockDocuments } from '../../shared/lib/mockData';
@@ -15,6 +15,7 @@ function mapDocs<T>(snapshot: {
 export function PublicDataProvider({ children }: { children: ReactNode }) {
   const [resources, setResources] = useState<Resource[]>([]);
   const [documents, setDocuments] = useState<ServiceDocument[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,13 +23,14 @@ export function PublicDataProvider({ children }: { children: ReactNode }) {
     if (isLocalMode()) {
       setResources(mockResources);
       setDocuments(mockDocuments);
+      setTags([]);
       setLoading(false);
       return () => undefined;
     }
 
     const unsubs: Unsubscribe[] = [];
     let loadedCount = 0;
-    const totalCollections = 2;
+    const totalCollections = 3;
 
     const checkLoaded = () => {
       loadedCount++;
@@ -66,13 +68,24 @@ export function PublicDataProvider({ children }: { children: ReactNode }) {
       ),
     );
 
+    unsubs.push(
+      onSnapshot(
+        collection(db, 'tags'),
+        (snap) => {
+          setTags(mapDocs<Tag>(snap));
+          checkLoaded();
+        },
+        handleError,
+      ),
+    );
+
     return () => {
       unsubs.forEach((unsub) => unsub());
     };
   }, []);
 
   return (
-    <PublicDataContext.Provider value={{ resources, documents, loading, error }}>
+    <PublicDataContext.Provider value={{ resources, documents, tags, loading, error }}>
       {children}
     </PublicDataContext.Provider>
   );

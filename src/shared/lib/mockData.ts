@@ -19,6 +19,7 @@ export const mockResources: Resource[] = [
     category: 'food',
     address: '123 Main St',
     phone: '555-0100',
+    email: 'info@foodpantry.org',
     website: 'https://example.org',
     operatingHours: [
       { day: 'mon', open: '09:00', close: '17:00' },
@@ -30,6 +31,7 @@ export const mockResources: Resource[] = [
       { day: 'sun', open: null, close: null },
     ],
     tags: ['food', 'pantry'],
+    tagIds: [],
     notes: [],
     feedbackSummary: { upvotes: 0, downvotes: 0 },
     linkedDocuments: ['doc-1'],
@@ -49,6 +51,7 @@ export const mockDocuments: ServiceDocument[] = [
     source: { url: 'https://example.org', storagePath: null, internalContent: null },
     category: 'food',
     tags: ['food'],
+    tagIds: [],
     linkedResources: ['res-1'],
     languages: { en: { available: true, storagePath: null } },
     translationStatus: {},

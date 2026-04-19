@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { addDoc, updateDoc, doc, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../../shared/lib/firebase';
 import { useAuth } from '../auth/useAuth';
+import { useData } from '../../app/useData';
 import Modal from '../../shared/components/Modal';
-import TagInput from '../../shared/components/TagInput';
+import RichTextEditor from '../../shared/components/RichTextEditor';
+import TagMultiselect from '../../shared/components/TagMultiselect';
 import OperatingHoursInput from '../../shared/components/OperatingHoursInput';
 import { createEmptySchedule } from '../../shared/lib/operatingHours';
 import { CATEGORIES } from '../../shared/lib/categories';
@@ -25,6 +27,7 @@ interface ResourceFormProps {
 
 export default function ResourceForm({ open, onClose, resource }: ResourceFormProps) {
   const { user } = useAuth();
+  const { tags } = useData();
   const isEdit = !!resource;
 
   const [name, setName] = useState<TranslatedField>(resource?.name ?? { en: '' });
@@ -34,11 +37,12 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
   const [category, setCategory] = useState<CategoryKey>(resource?.category ?? 'other');
   const [address, setAddress] = useState(resource?.address ?? '');
   const [phone, setPhone] = useState(resource?.phone ?? '');
+  const [email, setEmail] = useState(resource?.email ?? '');
   const [website, setWebsite] = useState(resource?.website ?? '');
   const [operatingHours, setOperatingHours] = useState<OperatingHours>(
     resource?.operatingHours ?? createEmptySchedule(),
   );
-  const [tags, setTags] = useState<string[]>(resource?.tags ?? []);
+  const [tagIds, setTagIds] = useState<string[]>(resource?.tagIds ?? []);
   const [activeLang, setActiveLang] = useState<LanguageCode>('en');
   const [saving, setSaving] = useState(false);
 
@@ -57,9 +61,10 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           category,
           address,
           phone,
+          email,
           website,
           operatingHours,
-          tags,
+          tagIds,
           translationStatus,
           updatedAt: Timestamp.now(),
         });
@@ -70,9 +75,10 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           category,
           address,
           phone,
+          email,
           website,
           operatingHours,
-          tags,
+          tagIds,
           notes: [],
           feedbackSummary: { upvotes: 0, downvotes: 0 },
           linkedDocuments: [],
@@ -140,11 +146,9 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Description ({activeLang.toUpperCase()})
           </label>
-          <textarea
+          <RichTextEditor
             value={description[activeLang] ?? ''}
-            onChange={(e) => setDescription({ ...description, [activeLang]: e.target.value })}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            onChange={(html) => setDescription({ ...description, [activeLang]: html })}
             placeholder={`Description in ${activeLang.toUpperCase()}`}
           />
         </div>
@@ -170,20 +174,32 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
-              <input
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  placeholder="contact@example.org"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                <input
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                />
+              </div>
             </div>
 
             <OperatingHoursInput value={operatingHours} onChange={setOperatingHours} />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-              <TagInput value={tags} onChange={setTags} />
+              <TagMultiselect value={tagIds} onChange={setTagIds} tags={tags} />
             </div>
           </>
         )}

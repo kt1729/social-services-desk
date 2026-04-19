@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import PublicHome from '../PublicHome';
 import { Timestamp } from 'firebase/firestore';
-import type { Resource, ServiceDocument } from '../../../shared/types';
+import PublicHome from '../PublicHome';
+import type { Resource, ServiceDocument, Tag } from '../../../shared/types';
 
 let outletContext = { lang: 'en' as const, search: '' };
 
@@ -18,6 +19,7 @@ vi.mock('react-router-dom', async () => {
 const mockPublicData = {
   resources: [] as Resource[],
   documents: [] as ServiceDocument[],
+  tags: [] as Tag[],
   loading: false,
   error: null as string | null,
 };
@@ -25,6 +27,64 @@ const mockPublicData = {
 vi.mock('../usePublicData', () => ({
   usePublicData: () => mockPublicData,
 }));
+
+const now = Timestamp.fromDate(new Date(0));
+
+function makeResource(
+  id: string,
+  name: string,
+  category: Resource['category'] = 'other',
+  tagIds: string[] = [],
+): Resource {
+  return {
+    id,
+    name: { en: name },
+    description: { en: '' },
+    category,
+    address: '',
+    phone: '',
+    website: '',
+    operatingHours: [],
+    tags: [],
+    tagIds,
+    notes: [],
+    feedbackSummary: { upvotes: 0, downvotes: 0 },
+    linkedDocuments: [],
+    translationStatus: {},
+    createdBy: 'u1',
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function makeDocument(
+  id: string,
+  title: string,
+  category: ServiceDocument['category'] = 'other',
+  tagIds: string[] = [],
+): ServiceDocument {
+  return {
+    id,
+    title: { en: title },
+    description: { en: '' },
+    category,
+    type: 'pdf',
+    source: { url: null, storagePath: null, internalContent: null },
+    tags: [],
+    tagIds,
+    languages: { en: { available: true, storagePath: null } },
+    linkedResources: [],
+    translationStatus: {},
+    printSettings: { paperSize: 'letter', orientation: 'portrait', showQRCode: false },
+    createdBy: 'u1',
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function makeTag(id: string, label: string): Tag {
+  return { id, label, slug: label.toLowerCase(), createdAt: now };
+}
 
 function renderPublicHome() {
   return render(
@@ -34,82 +94,17 @@ function renderPublicHome() {
   );
 }
 
-describe('PublicHome', () => {
+describe('PublicHome — existing behaviour', () => {
   beforeEach(() => {
-    const now = Timestamp.fromDate(new Date(0));
-
     outletContext = { lang: 'en', search: '' };
+    mockPublicData.tags = [];
     mockPublicData.resources = [
-      {
-        id: 'r1',
-        name: { en: 'Food Pantry' },
-        description: { en: 'Free groceries weekly.' },
-        category: 'food',
-        address: '123 Main St',
-        phone: '555-1111',
-        website: 'https://example.org',
-        operatingHours: [],
-        tags: [],
-        notes: [],
-        feedbackSummary: { upvotes: 0, downvotes: 0 },
-        linkedDocuments: [],
-        translationStatus: {},
-        createdBy: 'u1',
-        createdAt: now,
-        updatedAt: now,
-      },
-      {
-        id: 'r2',
-        name: { en: 'Shelter' },
-        description: { en: 'Overnight beds.' },
-        category: 'housing',
-        address: '456 Oak St',
-        phone: '555-2222',
-        website: '',
-        operatingHours: [],
-        tags: [],
-        notes: [],
-        feedbackSummary: { upvotes: 0, downvotes: 0 },
-        linkedDocuments: [],
-        translationStatus: {},
-        createdBy: 'u1',
-        createdAt: now,
-        updatedAt: now,
-      },
+      makeResource('r1', 'Food Pantry', 'food'),
+      makeResource('r2', 'Shelter', 'housing'),
     ];
     mockPublicData.documents = [
-      {
-        id: 'd1',
-        title: { en: 'Food Guide' },
-        description: { en: 'How to access food support.' },
-        category: 'food',
-        type: 'pdf',
-        source: { url: null, storagePath: 'docs/en.pdf', internalContent: null },
-        tags: [],
-        languages: { en: { available: true, storagePath: 'docs/en.pdf' } },
-        linkedResources: [],
-        translationStatus: {},
-        printSettings: { paperSize: 'letter', orientation: 'portrait', showQRCode: false },
-        createdBy: 'u1',
-        createdAt: now,
-        updatedAt: now,
-      },
-      {
-        id: 'd2',
-        title: { en: 'Legal Aid' },
-        description: { en: 'Know your rights.' },
-        category: 'legal',
-        type: 'pdf',
-        source: { url: null, storagePath: 'docs/legal.pdf', internalContent: null },
-        tags: [],
-        languages: { en: { available: true, storagePath: 'docs/legal.pdf' } },
-        linkedResources: [],
-        translationStatus: {},
-        printSettings: { paperSize: 'letter', orientation: 'portrait', showQRCode: false },
-        createdBy: 'u1',
-        createdAt: now,
-        updatedAt: now,
-      },
+      makeDocument('d1', 'Food Guide', 'food'),
+      makeDocument('d2', 'Legal Aid', 'legal'),
     ];
   });
 
@@ -137,5 +132,93 @@ describe('PublicHome', () => {
 
     expect(screen.getByText('Shelter')).toBeInTheDocument();
     expect(screen.queryByText('Food Pantry')).not.toBeInTheDocument();
+  });
+});
+
+describe('PublicHome — tag filter', () => {
+  beforeEach(() => {
+    outletContext = { lang: 'en', search: '' };
+    mockPublicData.tags = [makeTag('t1', 'Emergency'), makeTag('t2', 'Long-Term')];
+    mockPublicData.resources = [
+      makeResource('r1', 'Crisis Center', 'housing', ['t1']),
+      makeResource('r2', 'Job Training', 'employment', ['t2']),
+      makeResource('r3', 'Food Bank', 'food', []),
+    ];
+    mockPublicData.documents = [
+      makeDocument('d1', 'Emergency Guide', 'other', ['t1']),
+      makeDocument('d2', 'Long-Term Plan', 'other', ['t2']),
+    ];
+  });
+
+  it('renders tag filter pills when tags exist', () => {
+    renderPublicHome();
+    expect(screen.getByRole('button', { name: 'Emergency' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Long-Term' })).toBeInTheDocument();
+  });
+
+  it('does not render tag filter section when tags array is empty', () => {
+    mockPublicData.tags = [];
+    renderPublicHome();
+    expect(screen.queryByRole('button', { name: 'Emergency' })).not.toBeInTheDocument();
+  });
+
+  it('selecting a tag filters resources to those with matching tagId', async () => {
+    const user = userEvent.setup();
+    renderPublicHome();
+
+    await user.click(screen.getByRole('button', { name: 'Emergency' }));
+
+    expect(screen.getByText('Crisis Center')).toBeInTheDocument();
+    expect(screen.queryByText('Job Training')).not.toBeInTheDocument();
+    expect(screen.queryByText('Food Bank')).not.toBeInTheDocument();
+  });
+
+  it('selecting a tag filters documents to those with matching tagId', async () => {
+    const user = userEvent.setup();
+    renderPublicHome();
+
+    await user.click(screen.getByRole('button', { name: 'Emergency' }));
+
+    expect(screen.getByText(/Emergency Guide/)).toBeInTheDocument();
+    expect(screen.queryByText(/Long-Term Plan/)).not.toBeInTheDocument();
+  });
+
+  it('selecting two tag pills shows items matching either tag (OR logic)', async () => {
+    const user = userEvent.setup();
+    renderPublicHome();
+
+    await user.click(screen.getByRole('button', { name: 'Emergency' }));
+    await user.click(screen.getByRole('button', { name: 'Long-Term' }));
+
+    expect(screen.getByText('Crisis Center')).toBeInTheDocument();
+    expect(screen.getByText('Job Training')).toBeInTheDocument();
+    expect(screen.queryByText('Food Bank')).not.toBeInTheDocument();
+  });
+
+  it('deselecting a tag pill restores unfiltered results', async () => {
+    const user = userEvent.setup();
+    renderPublicHome();
+
+    await user.click(screen.getByRole('button', { name: 'Emergency' }));
+    expect(screen.queryByText('Job Training')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Emergency' }));
+    expect(screen.getByText('Crisis Center')).toBeInTheDocument();
+    expect(screen.getByText('Job Training')).toBeInTheDocument();
+    expect(screen.getByText('Food Bank')).toBeInTheDocument();
+  });
+
+  it('tag filter and category filter combine with AND logic', async () => {
+    const user = userEvent.setup();
+    // r1: housing + t1, r2: employment + t2, r3: food + none
+    // Select category "Housing & Shelter" and tag "Long-Term"
+    // → no items should match (r1 is housing but has t1, not t2)
+    renderPublicHome();
+
+    await user.click(screen.getByRole('button', { name: /Housing & Shelter/i }));
+    await user.click(screen.getByRole('button', { name: 'Long-Term' }));
+
+    expect(screen.queryByText('Crisis Center')).not.toBeInTheDocument();
+    expect(screen.queryByText('Job Training')).not.toBeInTheDocument();
   });
 });

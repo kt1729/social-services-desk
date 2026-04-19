@@ -5,6 +5,7 @@ import { getTranslatedText } from '../../shared/lib/translationUtils';
 import { getFileUrl } from '../../shared/lib/storageService';
 import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from '../../shared/lib/languages';
 import CategoryBadge from '../../shared/components/CategoryBadge';
+import RichTextDisplay from '../../shared/components/RichTextDisplay';
 import type { LanguageCode, ServiceDocument } from '../../shared/types';
 
 function typeIcon(type: string): string {
@@ -111,7 +112,7 @@ export default function PublicDocumentDetail() {
       </div>
 
       {getTranslatedText(document.description, lang) && (
-        <p className="text-gray-700 mb-6">{getTranslatedText(document.description, lang)}</p>
+        <RichTextDisplay html={getTranslatedText(document.description, lang)} className="text-gray-700 mb-6" />
       )}
 
       {/* Document Preview */}
