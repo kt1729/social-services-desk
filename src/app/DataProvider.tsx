@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { collection, onSnapshot, type Unsubscribe } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, type Unsubscribe } from 'firebase/firestore';
 import { db } from '../shared/lib/firebase';
 import { useAuth } from '../features/auth/useAuth';
 import type { Resource, Guest, ServiceDocument, Feedback, Note, Volunteer, Tag } from '../shared/types';
@@ -49,10 +49,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     };
 
     unsubs.push(
-      onSnapshot(collection(db, 'resources'), (snap) => {
-        setResources(mapDocs<Resource>(snap));
-        checkLoaded();
-      }),
+      onSnapshot(
+        query(collection(db, 'resources'), where('active', '!=', false)),
+        (snap) => {
+          setResources(mapDocs<Resource>(snap));
+          checkLoaded();
+        },
+      ),
     );
 
     unsubs.push(
@@ -63,10 +66,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
 
     unsubs.push(
-      onSnapshot(collection(db, 'documents'), (snap) => {
-        setDocuments(mapDocs<ServiceDocument>(snap));
-        checkLoaded();
-      }),
+      onSnapshot(
+        query(collection(db, 'documents'), where('active', '!=', false)),
+        (snap) => {
+          setDocuments(mapDocs<ServiceDocument>(snap));
+          checkLoaded();
+        },
+      ),
     );
 
     unsubs.push(

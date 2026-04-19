@@ -86,6 +86,8 @@ export interface Resource {
   feedbackSummary: FeedbackSummary;
   linkedDocuments: string[];
   translationStatus: TranslationStatus;
+  active?: boolean;
+  deletedAt?: Timestamp;
   createdBy: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -151,6 +153,8 @@ export interface ServiceDocument {
   languages: Partial<Record<LanguageCode, DocumentLanguageInfo>>;
   translationStatus: TranslationStatus;
   printSettings: PrintSettings;
+  active?: boolean;
+  deletedAt?: Timestamp;
   createdBy: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;

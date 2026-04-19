@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { getTranslatedText } from '../../shared/lib/translationUtils';
 import { getCategoryLabel } from '../../shared/lib/categories';
 import { PRINT_HEADERS } from '../../shared/lib/printHeaders';
@@ -12,6 +13,7 @@ interface PrintResourceCardProps {
 export default function PrintResourceCard({ resource, lang }: PrintResourceCardProps) {
   const headers = PRINT_HEADERS[lang];
   const today = new Date().toLocaleDateString();
+  const descriptionHtml = DOMPurify.sanitize(getTranslatedText(resource.description, lang));
 
   return (
     <div
@@ -37,7 +39,30 @@ export default function PrintResourceCard({ resource, lang }: PrintResourceCardP
           ))}
         </div>
 
-        <p className="text-sm mb-4">{getTranslatedText(resource.description, lang)}</p>
+        {descriptionHtml && (
+          <div
+            className="text-sm mb-4 prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+          />
+        )}
+
+        {(resource.branches?.length ?? 0) > 0 && (
+          <div className="mb-4">
+            <p className="text-sm font-medium mb-2">{headers.locations}</p>
+            <div className="space-y-2">
+              {resource.branches!.map((branch) => (
+                <div key={branch.id} className="text-sm pl-2 border-l-2 border-gray-400">
+                  <p className="font-medium">{branch.label}</p>
+                  {branch.address && <p>📍 {branch.address}</p>}
+                  {branch.phone && <p>📞 {branch.phone}</p>}
+                  {formatOperatingHours(branch.operatingHours ?? []).map((line) => (
+                    <p key={line}>🕐 {line}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <p className="text-sm font-medium mb-2">{headers.notes}</p>
         <div className="space-y-3 mb-4">

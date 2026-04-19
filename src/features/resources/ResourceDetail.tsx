@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   doc,
-  deleteDoc,
   updateDoc,
   arrayUnion,
   addDoc,
@@ -46,7 +45,10 @@ export default function ResourceDetail() {
   const resourceFeedback = feedback.filter((f) => f.resourceId === resource.id);
 
   const handleDelete = async () => {
-    await deleteDoc(doc(db, 'resources', resource.id));
+    await updateDoc(doc(db, 'resources', resource.id), {
+      active: false,
+      deletedAt: Timestamp.now(),
+    });
     navigate('/');
   };
 

@@ -7,6 +7,7 @@ export interface PrintHeaderTranslation {
   date: string;
   scan: string;
   visit: string;
+  locations: string;
 }
 
 export const PRINT_HEADERS: Record<LanguageCode, PrintHeaderTranslation> = {
@@ -17,6 +18,7 @@ export const PRINT_HEADERS: Record<LanguageCode, PrintHeaderTranslation> = {
     date: 'Date:',
     scan: 'Scan to open:',
     visit: 'Visit this website:',
+    locations: 'Locations:',
   },
   es: {
     title: 'SERVICIO SOCIAL',
@@ -25,6 +27,7 @@ export const PRINT_HEADERS: Record<LanguageCode, PrintHeaderTranslation> = {
     date: 'Fecha:',
     scan: 'Escanee para abrir:',
     visit: 'Visite este sitio web:',
+    locations: 'Ubicaciones:',
   },
   zh: {
     title: '社会服务台',
@@ -33,6 +36,7 @@ export const PRINT_HEADERS: Record<LanguageCode, PrintHeaderTranslation> = {
     date: '日期：',
     scan: '扫描打开：',
     visit: '访问此网站：',
+    locations: '地点：',
   },
   ht: {
     title: 'SÈVIS SOSYAL',
@@ -41,5 +45,6 @@ export const PRINT_HEADERS: Record<LanguageCode, PrintHeaderTranslation> = {
     date: 'Dat:',
     scan: 'Eskane pou ouvri:',
     visit: 'Vizite sit entènèt sa a:',
+    locations: 'Kote yo:',
   },
 };

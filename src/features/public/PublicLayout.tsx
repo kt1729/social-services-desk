@@ -86,7 +86,7 @@ export default function PublicLayout() {
             onClick={() => setQrOpen(false)}
           />
           <div
-            className="relative bg-white rounded-lg shadow-lg border border-gray-200 w-full max-w-sm p-6 text-center"
+            className="relative bg-white rounded-lg shadow-lg border border-gray-200 w-full max-w-xl p-8 text-center"
             data-testid="public-qr-modal"
           >
             <button
@@ -117,12 +117,12 @@ export default function PublicLayout() {
             <div className="bg-white p-4 rounded-lg border border-gray-200 inline-block print-border-none">
               <QRCodeSVG
                 value={qrUrl}
-                size={180}
+                size={280}
                 level="H"
                 imageSettings={{
                   src: logoUrl,
-                  height: 40,
-                  width: 40,
+                  height: 56,
+                  width: 56,
                   excavate: true,
                 }}
               />
