@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { CATEGORIES } from '../shared/lib/categories';
 import { useData } from './useData';
+import { useAuth } from '../features/auth/useAuth';
 import { NON_EN_LANGUAGES, LANGUAGE_LABELS, type NonEnLanguageCode } from '../shared/lib/languages';
 import type { CategoryKey } from '../shared/types';
 import type { ViewMode } from './Layout';
@@ -20,6 +21,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const location = useLocation();
   const { resources, documents } = useData();
+  const { isAdmin } = useAuth();
   const isResourcesPage = location.pathname === '/' || location.pathname.startsWith('/resources');
 
   const translationPercentages = NON_EN_LANGUAGES.map((lang) => {
@@ -148,6 +150,19 @@ export default function Sidebar({
         >
           Tags
         </Link>
+
+        {isAdmin && (
+          <Link
+            to="/volunteers"
+            className={`block px-3 py-2 rounded text-sm ${
+              location.pathname === '/volunteers'
+                ? 'bg-blue-50 text-blue-700 font-medium'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Volunteers
+          </Link>
+        )}
 
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Translation

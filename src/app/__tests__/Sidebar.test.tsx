@@ -5,6 +5,10 @@ import { MemoryRouter } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import type { CategoryKey } from '../../shared/types';
 
+vi.mock('../../features/auth/useAuth', () => ({
+  useAuth: () => ({ isAdmin: false }),
+}));
+
 vi.mock('../useData', () => ({
   useData: () => ({
     resources: [
