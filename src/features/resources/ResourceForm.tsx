@@ -13,6 +13,7 @@ import { SUPPORTED_LANGUAGES } from '../../shared/lib/languages';
 import { computeAllTranslationStatuses } from '../../shared/lib/translationUtils';
 import type {
   Resource,
+  Branch,
   TranslatedField,
   CategoryKey,
   LanguageCode,
@@ -23,6 +24,10 @@ interface ResourceFormProps {
   open: boolean;
   onClose: () => void;
   resource?: Resource;
+}
+
+function newBranch(): Branch {
+  return { id: crypto.randomUUID(), label: '', address: '', phone: '', email: '', operatingHours: createEmptySchedule() };
 }
 
 export default function ResourceForm({ open, onClose, resource }: ResourceFormProps) {
@@ -43,8 +48,15 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
     resource?.operatingHours ?? createEmptySchedule(),
   );
   const [tagIds, setTagIds] = useState<string[]>(resource?.tagIds ?? []);
+  const [branches, setBranches] = useState<Branch[]>(resource?.branches ?? []);
   const [activeLang, setActiveLang] = useState<LanguageCode>('en');
   const [saving, setSaving] = useState(false);
+
+  const updateBranch = (id: string, patch: Partial<Branch>) =>
+    setBranches((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
+
+  const removeBranch = (id: string) =>
+    setBranches((prev) => prev.filter((b) => b.id !== id));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +77,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           website,
           operatingHours,
           tagIds,
+          branches,
           translationStatus,
           updatedAt: Timestamp.now(),
         });
@@ -79,6 +92,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           website,
           operatingHours,
           tagIds,
+          branches,
           notes: [],
           feedbackSummary: { upvotes: 0, downvotes: 0 },
           linkedDocuments: [],
@@ -200,6 +214,83 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
               <TagMultiselect value={tagIds} onChange={setTagIds} tags={tags} />
+            </div>
+
+            {/* Branches */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">Branches / Locations</label>
+                <button
+                  type="button"
+                  onClick={() => setBranches((prev) => [...prev, newBranch()])}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  + Add Branch
+                </button>
+              </div>
+              {branches.length === 0 && (
+                <p className="text-xs text-gray-400">No branches. Click "+ Add Branch" to add a location.</p>
+              )}
+              <div className="space-y-3">
+                {branches.map((branch, idx) => (
+                  <div key={branch.id} className="border border-gray-200 rounded-md p-3 bg-gray-50 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-500">Branch {idx + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeBranch(branch.id)}
+                        className="text-xs text-red-500 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-0.5">Label *</label>
+                      <input
+                        value={branch.label}
+                        onChange={(e) => updateBranch(branch.id, { label: e.target.value })}
+                        required
+                        placeholder="e.g. Downtown, Eastside"
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-0.5">Address</label>
+                        <input
+                          value={branch.address ?? ''}
+                          onChange={(e) => updateBranch(branch.id, { address: e.target.value })}
+                          className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-0.5">Phone</label>
+                        <input
+                          value={branch.phone ?? ''}
+                          onChange={(e) => updateBranch(branch.id, { phone: e.target.value })}
+                          className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-0.5">Email</label>
+                      <input
+                        type="email"
+                        value={branch.email ?? ''}
+                        onChange={(e) => updateBranch(branch.id, { email: e.target.value })}
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Hours</label>
+                      <OperatingHoursInput
+                        value={branch.operatingHours ?? createEmptySchedule()}
+                        onChange={(hrs) => updateBranch(branch.id, { operatingHours: hrs })}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}

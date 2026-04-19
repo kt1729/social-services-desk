@@ -157,6 +157,39 @@ export default function ResourceDetail() {
 
         <RichTextDisplay html={getTranslatedText(resource.description, 'en')} className="text-gray-700 mb-6" />
 
+        {(resource.branches?.length ?? 0) > 0 && (
+          <div className="mb-6">
+            <h2 className="font-semibold mb-3">📍 Locations</h2>
+            <div className="space-y-3">
+              {resource.branches!.map((branch) => (
+                <div key={branch.id} className="bg-gray-50 rounded-lg p-4 text-sm space-y-1">
+                  <p className="font-medium text-gray-900">{branch.label}</p>
+                  {branch.address && <p>📍 {branch.address}</p>}
+                  {branch.phone && (
+                    <p>
+                      📞{' '}
+                      <a href={`tel:${branch.phone}`} className="text-blue-600 hover:underline">
+                        {branch.phone}
+                      </a>
+                    </p>
+                  )}
+                  {branch.email && (
+                    <p>
+                      ✉️{' '}
+                      <a href={`mailto:${branch.email}`} className="text-blue-600 hover:underline">
+                        {branch.email}
+                      </a>
+                    </p>
+                  )}
+                  {formatOperatingHours(branch.operatingHours ?? []).map((line) => (
+                    <p key={line}>🕐 {line}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {resource.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-6">
             {resource.tags.map((tag) => (

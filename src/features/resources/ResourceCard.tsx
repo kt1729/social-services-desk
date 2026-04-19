@@ -37,6 +37,12 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
 
       {description && <p className="text-sm text-gray-600 line-clamp-2 mb-3">{description}</p>}
 
+      {(resource.branches?.length ?? 0) > 0 && (
+        <p className="text-xs text-indigo-600 font-medium mb-2">
+          📍 {resource.branches!.length} location{resource.branches!.length !== 1 ? 's' : ''}
+        </p>
+      )}
+
       <div className="flex items-center gap-4 text-sm text-gray-500">
         <span>👍 {resource.feedbackSummary?.upvotes ?? 0}</span>
         <span>👎 {resource.feedbackSummary?.downvotes ?? 0}</span>

@@ -109,4 +109,31 @@ describe('ResourceCard', () => {
     renderCard(makeResource({ email: '' }));
     expect(screen.queryByText(/✉️/)).not.toBeInTheDocument();
   });
+
+  it('shows locations badge when resource has branches', () => {
+    renderCard(
+      makeResource({
+        branches: [
+          { id: 'b1', label: 'Downtown', address: '1 Main St' },
+          { id: 'b2', label: 'Eastside', address: '2 Oak Ave' },
+        ],
+      }),
+    );
+    expect(screen.getByText(/2 locations/)).toBeInTheDocument();
+  });
+
+  it('shows singular "location" for one branch', () => {
+    renderCard(makeResource({ branches: [{ id: 'b1', label: 'Main' }] }));
+    expect(screen.getByText(/1 location/)).toBeInTheDocument();
+  });
+
+  it('hides locations badge when branches array is empty', () => {
+    renderCard(makeResource({ branches: [] }));
+    expect(screen.queryByText(/location/)).not.toBeInTheDocument();
+  });
+
+  it('hides locations badge when branches is undefined', () => {
+    renderCard(makeResource({ branches: undefined }));
+    expect(screen.queryByText(/location/)).not.toBeInTheDocument();
+  });
 });
