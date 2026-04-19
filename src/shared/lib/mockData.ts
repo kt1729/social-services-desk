@@ -30,6 +30,7 @@ export const mockResources: Resource[] = [
       { day: 'sat', open: null, close: null },
       { day: 'sun', open: null, close: null },
     ],
+    branches: [],
     tags: ['food', 'pantry'],
     tagIds: [],
     notes: [],

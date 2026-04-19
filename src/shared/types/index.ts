@@ -60,6 +60,15 @@ export interface DaySchedule {
 
 export type OperatingHours = DaySchedule[];
 
+export interface Branch {
+  id: string;
+  label: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  operatingHours?: OperatingHours;
+}
+
 export interface Resource {
   id: string;
   name: TranslatedField;
@@ -70,6 +79,7 @@ export interface Resource {
   email?: string;
   website: string;
   operatingHours: OperatingHours;
+  branches?: Branch[];
   tags: string[];
   tagIds: string[];
   notes: ResourceNote[];
