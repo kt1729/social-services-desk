@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { Resource, Guest, ServiceDocument, Feedback, Note, Volunteer } from '../shared/types';
+import type { Resource, Guest, ServiceDocument, Feedback, Note, Volunteer, Tag } from '../shared/types';
 
 export interface DataContextValue {
   resources: Resource[];
@@ -8,6 +8,7 @@ export interface DataContextValue {
   feedback: Feedback[];
   notes: Note[];
   volunteers: Volunteer[];
+  tags: Tag[];
   loading: boolean;
   getVolunteerName: (id: string) => string;
 }

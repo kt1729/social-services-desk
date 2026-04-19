@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { addDoc, updateDoc, doc, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../../shared/lib/firebase';
 import { useAuth } from '../auth/useAuth';
+import { useData } from '../../app/useData';
 import Modal from '../../shared/components/Modal';
-import TagInput from '../../shared/components/TagInput';
+import TagMultiselect from '../../shared/components/TagMultiselect';
 import OperatingHoursInput from '../../shared/components/OperatingHoursInput';
 import { createEmptySchedule } from '../../shared/lib/operatingHours';
 import { CATEGORIES } from '../../shared/lib/categories';
@@ -25,6 +26,7 @@ interface ResourceFormProps {
 
 export default function ResourceForm({ open, onClose, resource }: ResourceFormProps) {
   const { user } = useAuth();
+  const { tags } = useData();
   const isEdit = !!resource;
 
   const [name, setName] = useState<TranslatedField>(resource?.name ?? { en: '' });
@@ -38,7 +40,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
   const [operatingHours, setOperatingHours] = useState<OperatingHours>(
     resource?.operatingHours ?? createEmptySchedule(),
   );
-  const [tags, setTags] = useState<string[]>(resource?.tags ?? []);
+  const [tagIds, setTagIds] = useState<string[]>(resource?.tagIds ?? []);
   const [activeLang, setActiveLang] = useState<LanguageCode>('en');
   const [saving, setSaving] = useState(false);
 
@@ -59,7 +61,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           phone,
           website,
           operatingHours,
-          tags,
+          tagIds,
           translationStatus,
           updatedAt: Timestamp.now(),
         });
@@ -72,7 +74,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           phone,
           website,
           operatingHours,
-          tags,
+          tagIds,
           notes: [],
           feedbackSummary: { upvotes: 0, downvotes: 0 },
           linkedDocuments: [],
@@ -183,7 +185,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-              <TagInput value={tags} onChange={setTags} />
+              <TagMultiselect value={tagIds} onChange={setTagIds} tags={tags} />
             </div>
           </>
         )}

@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { collection, onSnapshot, type Unsubscribe } from 'firebase/firestore';
 import { db } from '../shared/lib/firebase';
 import { useAuth } from '../features/auth/useAuth';
-import type { Resource, Guest, ServiceDocument, Feedback, Note, Volunteer } from '../shared/types';
+import type { Resource, Guest, ServiceDocument, Feedback, Note, Volunteer, Tag } from '../shared/types';
 import { DataContext } from './DataContext';
 import { isLocalMode } from '../shared/lib/localMode';
 import { mockResources, mockGuests, mockDocuments, mockVolunteer } from '../shared/lib/mockData';
@@ -21,6 +21,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [feedback, setFeedback] = useState<Feedback[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setFeedback([]);
       setNotes([]);
       setVolunteers([mockVolunteer]);
+      setTags([]);
       setLoading(false);
       return () => undefined;
     }
@@ -39,7 +41,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     const unsubs: Unsubscribe[] = [];
     let loadedCount = 0;
-    const totalCollections = 6;
+    const totalCollections = 7;
 
     const checkLoaded = () => {
       loadedCount++;
@@ -88,6 +90,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }),
     );
 
+    unsubs.push(
+      onSnapshot(collection(db, 'tags'), (snap) => {
+        setTags(mapDocs<Tag>(snap));
+        checkLoaded();
+      }),
+    );
+
     return () => {
       unsubs.forEach((unsub) => unsub());
     };
@@ -107,6 +116,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         feedback,
         notes,
         volunteers,
+        tags,
         loading,
         getVolunteerName,
       }}

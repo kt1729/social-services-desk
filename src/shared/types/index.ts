@@ -22,6 +22,13 @@ export type CategoryKey =
   | 'clothing'
   | 'other';
 
+export interface Tag {
+  id: string;
+  label: string;
+  slug: string;
+  createdAt: Timestamp;
+}
+
 export type VolunteerRole = 'volunteer' | 'admin';
 
 export interface Volunteer {
@@ -63,6 +70,7 @@ export interface Resource {
   website: string;
   operatingHours: OperatingHours;
   tags: string[];
+  tagIds: string[];
   notes: ResourceNote[];
   feedbackSummary: FeedbackSummary;
   linkedDocuments: string[];
@@ -127,6 +135,7 @@ export interface ServiceDocument {
   source: DocumentSource;
   category: CategoryKey;
   tags: string[];
+  tagIds: string[];
   linkedResources: string[];
   languages: Partial<Record<LanguageCode, DocumentLanguageInfo>>;
   translationStatus: TranslationStatus;
