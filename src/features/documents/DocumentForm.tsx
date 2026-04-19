@@ -151,6 +151,7 @@ export default function DocumentForm({ open, onClose, document: existingDoc }: D
           linkedResources: linkedResourceIds,
           languages,
           translationStatus,
+          active: true,
           printSettings: { paperSize: 'letter', orientation: 'portrait', showQRCode: true },
           createdBy: user.uid,
           createdAt: Timestamp.now(),
