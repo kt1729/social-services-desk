@@ -127,3 +127,17 @@ The system SHALL allow volunteers to attach documents to resources via the `link
 
 - **WHEN** a volunteer clicks "Attach Document" on a resource and selects a document from the library
 - **THEN** the system adds the document ID to the resource's `linkedDocuments` array and the document appears in the resource card's related documents section
+
+### Requirement: Rich text description renders with visible paragraph spacing
+
+The system SHALL render rich text description HTML with visible vertical spacing between paragraphs so that line breaks authored in the Tiptap editor are visible in all preview surfaces.
+
+#### Scenario: Multi-paragraph description shows paragraph breaks in app preview
+
+- **WHEN** a resource description contains multiple paragraphs separated by Enter in the Tiptap editor
+- **THEN** each paragraph is visually separated by vertical whitespace in the resource detail view
+
+#### Scenario: Multi-paragraph description shows paragraph breaks in print preview
+
+- **WHEN** a resource description contains multiple paragraphs
+- **THEN** each paragraph is visually separated in the print card preview

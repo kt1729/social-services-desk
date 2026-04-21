@@ -32,4 +32,17 @@
     padding: 0 !important;
     overflow: visible !important;
   }
+
+  /* Print card full-width and multi-page overflow */
+  .print-block {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .print-block * {
+    overflow: visible !important;
+    break-inside: auto;
+  }
 }
