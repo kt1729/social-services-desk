@@ -86,6 +86,17 @@ function makeTag(id: string, label: string): Tag {
   return { id, label, slug: label.toLowerCase(), createdAt: now };
 }
 
+function makeResourceWithBranches(
+  id: string,
+  name: string,
+  branches: Resource['branches'],
+): Resource {
+  return {
+    ...makeResource(id, name),
+    branches,
+  };
+}
+
 function renderPublicHome() {
   return render(
     <MemoryRouter>
@@ -132,6 +143,68 @@ describe('PublicHome — existing behaviour', () => {
 
     expect(screen.getByText('Shelter')).toBeInTheDocument();
     expect(screen.queryByText('Food Pantry')).not.toBeInTheDocument();
+  });
+});
+
+describe('PublicHome — branch search', () => {
+  beforeEach(() => {
+    mockPublicData.tags = [];
+    mockPublicData.documents = [];
+  });
+
+  it('matches resource by branch label', () => {
+    mockPublicData.resources = [
+      makeResourceWithBranches('r1', 'Legal Aid', [
+        { id: 'b1', label: 'Downtown Office', address: '1 Court St' },
+      ]),
+    ];
+    outletContext = { lang: 'en', search: 'Downtown Office' };
+    renderPublicHome();
+    expect(screen.getByText('Legal Aid')).toBeInTheDocument();
+  });
+
+  it('matches resource by branch address', () => {
+    mockPublicData.resources = [
+      makeResourceWithBranches('r1', 'Health Clinic', [
+        { id: 'b1', label: 'East Branch', address: '99 Elm Street' },
+      ]),
+    ];
+    outletContext = { lang: 'en', search: 'elm street' };
+    renderPublicHome();
+    expect(screen.getByText('Health Clinic')).toBeInTheDocument();
+  });
+
+  it('matches resource by branch phone', () => {
+    mockPublicData.resources = [
+      makeResourceWithBranches('r1', 'Health Clinic', [
+        { id: 'b1', label: 'Branch', phone: '617-555-9999' },
+      ]),
+    ];
+    outletContext = { lang: 'en', search: '617-555-9999' };
+    renderPublicHome();
+    expect(screen.getByText('Health Clinic')).toBeInTheDocument();
+  });
+
+  it('matches resource by branch email', () => {
+    mockPublicData.resources = [
+      makeResourceWithBranches('r1', 'Health Clinic', [
+        { id: 'b1', label: 'Branch', email: 'east@clinic.org' },
+      ]),
+    ];
+    outletContext = { lang: 'en', search: 'east@clinic.org' };
+    renderPublicHome();
+    expect(screen.getByText('Health Clinic')).toBeInTheDocument();
+  });
+
+  it('does not match resource when branch fields do not match query', () => {
+    mockPublicData.resources = [
+      makeResourceWithBranches('r1', 'Health Clinic', [
+        { id: 'b1', label: 'Main Branch', address: '1 Oak St' },
+      ]),
+    ];
+    outletContext = { lang: 'en', search: 'xyznotfound' };
+    renderPublicHome();
+    expect(screen.queryByText('Health Clinic')).not.toBeInTheDocument();
   });
 });
 

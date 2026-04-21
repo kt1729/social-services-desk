@@ -20,17 +20,20 @@
     border: none !important;
   }
 
-  /* Reset layout for print */
+  /* Reset layout for print — allow full page height */
+  html,
   body {
+    height: auto !important;
+    overflow: visible !important;
     background: white;
     margin: 0;
     padding: 0;
   }
 
-  /* Ensure print cards use full page width */
   main {
     padding: 0 !important;
     overflow: visible !important;
+    height: auto !important;
   }
 
   /* Print card full-width and multi-page overflow */
@@ -39,6 +42,7 @@
     width: 100% !important;
     padding: 0 !important;
     overflow: visible !important;
+    height: auto !important;
   }
 
   .print-block * {

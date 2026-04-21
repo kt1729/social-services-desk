@@ -13,16 +13,16 @@ export default function Layout() {
   const [viewMode, setViewMode] = useState<ViewMode>('all');
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col print:h-auto print:block">
       <Header />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden print:overflow-visible print:h-auto print:block">
         <Sidebar
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
         />
-        <main className="flex-1 overflow-y-auto p-6 bg-white">
+        <main className="flex-1 overflow-y-auto p-6 bg-white print:overflow-visible print:h-auto">
           <Outlet context={{ selectedCategory, setSelectedCategory, viewMode, setViewMode }} />
         </main>
       </div>
