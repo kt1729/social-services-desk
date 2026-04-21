@@ -97,6 +97,7 @@ export default function ResourceForm({ open, onClose, resource }: ResourceFormPr
           feedbackSummary: { upvotes: 0, downvotes: 0 },
           linkedDocuments: [],
           translationStatus,
+          active: true,
           createdBy: user.uid,
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),

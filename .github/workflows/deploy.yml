@@ -23,6 +23,10 @@ jobs:
 
       - run: npm test
 
+      - run: npx tsx scripts/run-migrations.ts
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
       - run: npm run build
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
