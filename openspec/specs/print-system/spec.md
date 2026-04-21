@@ -79,3 +79,21 @@ The system SHALL store print card header translations as static constants in app
 
 - **WHEN** a print card is rendered in any supported language
 - **THEN** the header text (title, subtitle, labels) uses the corresponding static translation from the PRINT_HEADERS constant
+
+### Requirement: Print card fills full page width
+
+The system SHALL render print cards at the full printable page width with no max-width constraint, so the card uses all available horizontal space on the printed page.
+
+#### Scenario: Card spans full width on print
+
+- **WHEN** a volunteer triggers browser print on a resource or document card
+- **THEN** the card expands to fill the full printable page width with no side whitespace from a max-width cap
+
+### Requirement: Print card content flows across multiple pages
+
+The system SHALL allow print card content to overflow onto additional pages rather than clipping at the bottom of the first page, so resources or documents with long descriptions or many branches print completely.
+
+#### Scenario: Long content prints on multiple pages
+
+- **WHEN** a resource or document has a description or branch list long enough to exceed one page
+- **THEN** the content continues on the next page and nothing is clipped or hidden

@@ -40,5 +40,8 @@ service-account.json
 .claude
 .codex
 
+# OpenSpec archives (history captured in git log)
+openspec/changes/archive/
+
 # OS
 Thumbs.db

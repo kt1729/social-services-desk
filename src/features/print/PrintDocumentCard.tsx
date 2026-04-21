@@ -18,7 +18,7 @@ export default function PrintDocumentCard({ document: doc, lang }: PrintDocument
 
   return (
     <div
-      className="hidden print-block max-w-md mx-auto p-8"
+      className="hidden print-block"
       data-lang={lang}
       style={{ fontFamily: lang === 'zh' ? "'Noto Sans SC', sans-serif" : 'inherit' }}
     >
@@ -32,7 +32,7 @@ export default function PrintDocumentCard({ document: doc, lang }: PrintDocument
 
         {descriptionHtml && (
           <div
-            className="text-sm mb-4 prose prose-sm max-w-none"
+            className="text-sm mb-4 prose prose-sm max-w-none [&_p]:mb-3"
             dangerouslySetInnerHTML={{ __html: descriptionHtml }}
           />
         )}

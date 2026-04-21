@@ -136,3 +136,17 @@ The system SHALL allow only admin-role volunteers to soft-delete documents. Soft
 
 - **WHEN** an admin clicks "Restore" on a soft-deleted document
 - **THEN** the system sets `active: true` and removes `deletedAt` from the document, and the document reappears in the active list
+
+### Requirement: Rich text description renders with visible paragraph spacing
+
+The system SHALL render rich text description HTML with visible vertical spacing between paragraphs so that line breaks authored in the Tiptap editor are visible in all preview surfaces.
+
+#### Scenario: Multi-paragraph description shows paragraph breaks in app preview
+
+- **WHEN** a document description contains multiple paragraphs separated by Enter in the Tiptap editor
+- **THEN** each paragraph is visually separated by vertical whitespace in the document detail view
+
+#### Scenario: Multi-paragraph description shows paragraph breaks in print preview
+
+- **WHEN** a document description contains multiple paragraphs
+- **THEN** each paragraph is visually separated in the print card preview

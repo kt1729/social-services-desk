@@ -45,6 +45,9 @@ VITE_SUPABASE_ANON_KEY=
 VITE_SUPABASE_BUCKET=
 VITE_PUBLIC_LOGO_URL=
 VITE_LOCAL_MODE=false
+
+# Required for database migrations (see Database Migrations below)
+FIREBASE_SERVICE_ACCOUNT=
 ```
 
 ### Local Mode (No Cloud Setup)
@@ -71,12 +74,30 @@ If you deploy with GitHub Actions, set the same values as repository secrets:
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_SUPABASE_BUCKET`
 - `VITE_PUBLIC_LOGO_URL`
+- `FIREBASE_SERVICE_ACCOUNT` — required for the migration runner (see below)
 
 4. Run the app:
 
 ```bash
 npm run dev
 ```
+
+### Database Migrations
+
+Schema migrations are tracked in Firestore under the `_migrations` collection and run automatically on every deploy via GitHub Actions.
+
+To run migrations locally:
+
+```bash
+npm run migrate
+```
+
+This requires `FIREBASE_SERVICE_ACCOUNT` to be set in your `.env` file. Get the value from Firebase Console → Project Settings → Service Accounts → Generate new private key. Copy the entire JSON content as a single line (or minified) into the env var.
+
+To add a new migration:
+
+1. Create `scripts/migrations/NNN-description.ts` exporting `{ id, name, run(db) }`
+2. Add it to `scripts/migrations/index.ts`
 
 ### Scripts
 
@@ -85,6 +106,7 @@ npm run dev
 - `npm test` – Vitest
 - `npm run build` – production build
 - `npm run preview` – preview production build
+- `npm run migrate` – run pending Firestore migrations
 
 ## Security Notes (Before Going Public)
 

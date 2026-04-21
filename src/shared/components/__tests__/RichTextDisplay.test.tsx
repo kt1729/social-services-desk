@@ -38,9 +38,7 @@ describe('RichTextDisplay', () => {
   });
 
   it('strips onclick attributes (DOMPurify sanitization)', () => {
-    const { container } = render(
-      <RichTextDisplay html='<p onclick="alert(1)">Hello</p>' />,
-    );
+    const { container } = render(<RichTextDisplay html='<p onclick="alert(1)">Hello</p>' />);
     const p = container.querySelector('p');
     expect(p).not.toHaveAttribute('onclick');
     expect(screen.getByText('Hello')).toBeInTheDocument();
@@ -54,6 +52,15 @@ describe('RichTextDisplay', () => {
   it('renders empty string without error', () => {
     const { container } = render(<RichTextDisplay html="" />);
     expect(container.firstChild).toBeInTheDocument();
+  });
+
+  it('renders two paragraphs with paragraph spacing class', () => {
+    const { container } = render(
+      <RichTextDisplay html="<p>First paragraph</p><p>Second paragraph</p>" />,
+    );
+    const paragraphs = container.querySelectorAll('p');
+    expect(paragraphs).toHaveLength(2);
+    expect(container.firstChild).toHaveClass('[&_p]:mb-3');
   });
 
   it('applies custom className', () => {
