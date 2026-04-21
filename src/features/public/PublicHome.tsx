@@ -8,7 +8,10 @@ import CategoryBadge from '../../shared/components/CategoryBadge';
 import type { LanguageCode, CategoryKey } from '../../shared/types';
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function typeIcon(type: string): string {
@@ -44,15 +47,15 @@ export default function PublicHome() {
 
   const filteredResources = resources.filter((r) => {
     if (selectedCategory && r.category !== selectedCategory) return false;
-    if (
-      selectedTagIds.length > 0 &&
-      !selectedTagIds.some((tid) => (r.tagIds ?? []).includes(tid))
-    )
+    if (selectedTagIds.length > 0 && !selectedTagIds.some((tid) => (r.tagIds ?? []).includes(tid)))
       return false;
     if (!searchTerm) return true;
     const name = getTranslatedText(r.name, lang);
     const description = stripHtml(getTranslatedText(r.description, lang));
-    const haystack = [name, description, r.address, r.phone, r.website]
+    const branchFields = (r.branches ?? []).flatMap((b) =>
+      [b.label, b.address, b.phone, b.email].filter(Boolean),
+    );
+    const haystack = [name, description, r.address, r.phone, r.website, ...branchFields]
       .filter(Boolean)
       .join(' ')
       .toLowerCase();
@@ -61,10 +64,7 @@ export default function PublicHome() {
 
   const filteredDocuments = documents.filter((d) => {
     if (selectedCategory && d.category !== selectedCategory) return false;
-    if (
-      selectedTagIds.length > 0 &&
-      !selectedTagIds.some((tid) => (d.tagIds ?? []).includes(tid))
-    )
+    if (selectedTagIds.length > 0 && !selectedTagIds.some((tid) => (d.tagIds ?? []).includes(tid)))
       return false;
     if (!searchTerm) return true;
     const title = getTranslatedText(d.title, lang);

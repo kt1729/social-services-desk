@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useData } from '../../app/useData';
 import { getTranslatedText } from '../../shared/lib/translationUtils';
+
 function searchMultilingual(field: Record<string, string> | undefined, query: string): boolean {
   if (!field) return false;
   const q = query.toLowerCase();
@@ -11,11 +12,16 @@ function searchMultilingual(field: Record<string, string> | undefined, query: st
 export default function SearchResults() {
   const [params] = useSearchParams();
   const query = params.get('q') ?? '';
-  const { resources, documents, guests } = useData();
+  const { resources, documents, guests, tags } = useData();
+
+  const tagLabelById = useMemo(() => new Map(tags.map((t) => [t.id, t.label])), [tags]);
 
   const results = useMemo(() => {
     if (!query.trim()) return { resources: [], documents: [], guests: [] };
     const q = query.toLowerCase();
+
+    const matchesTagIds = (tagIds: string[] | undefined): boolean =>
+      tagIds?.some((id) => tagLabelById.get(id)?.toLowerCase().includes(q)) ?? false;
 
     const matchedResources = resources.filter(
       (r) =>
@@ -23,7 +29,15 @@ export default function SearchResults() {
         searchMultilingual(r.description as Record<string, string>, query) ||
         r.category?.toLowerCase().includes(q) ||
         r.tags?.some((t) => t.toLowerCase().includes(q)) ||
-        r.address?.toLowerCase().includes(q),
+        matchesTagIds(r.tagIds) ||
+        r.address?.toLowerCase().includes(q) ||
+        r.branches?.some(
+          (b) =>
+            b.label?.toLowerCase().includes(q) ||
+            b.address?.toLowerCase().includes(q) ||
+            b.phone?.toLowerCase().includes(q) ||
+            b.email?.toLowerCase().includes(q),
+        ),
     );
 
     const matchedDocuments = documents.filter(
@@ -31,7 +45,8 @@ export default function SearchResults() {
         searchMultilingual(d.title as Record<string, string>, query) ||
         searchMultilingual(d.description as Record<string, string>, query) ||
         d.category?.toLowerCase().includes(q) ||
-        d.tags?.some((t) => t.toLowerCase().includes(q)),
+        d.tags?.some((t) => t.toLowerCase().includes(q)) ||
+        matchesTagIds(d.tagIds),
     );
 
     const matchedGuests = guests.filter(
@@ -43,7 +58,7 @@ export default function SearchResults() {
     );
 
     return { resources: matchedResources, documents: matchedDocuments, guests: matchedGuests };
-  }, [query, resources, documents, guests]);
+  }, [query, resources, documents, guests, tagLabelById]);
 
   const totalResults = results.resources.length + results.documents.length + results.guests.length;
 
